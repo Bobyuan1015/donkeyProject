@@ -27,6 +27,10 @@ public class PlaceOperations {
         return new PlaceOperations() ;
     }
 
+    public ArrayList<Place> getmArrayPlaceList(){
+        return mArrayPlaceList;
+    }
+
     /**
      * Add a new Place to the list, if not already there
      * @param  place, the Place to add

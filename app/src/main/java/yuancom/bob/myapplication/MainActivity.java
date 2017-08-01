@@ -19,12 +19,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import yuancom.bob.myapplication.geographicInfo.DestinationsFragment;
+
+
 public class MainActivity extends AppCompatActivity
         implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
 
     final String Tag = "MainActivity";
     private GoogleMap mMap;
     private MapFragment mapFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(Tag,"onCreate");
@@ -37,19 +41,13 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         mapFragment = MapFragment.newInstance();
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.fragment, mapFragment);
-        fragmentTransaction.commit();
-        mapFragment.getMapAsync(this);
-
-
+        getFragmentManager().beginTransaction().add(R.id.mainfragment, mapFragment).commit();
 
     }
 
@@ -61,6 +59,7 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            getFragmentManager().popBackStack();
         }
     }
 
@@ -84,7 +83,6 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -93,21 +91,27 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        Log.d(Tag,"onNavigationItemSelected  id="+id);
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_slideshow) {
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        if (id == R.id.login) {
+            Log.d(Tag,"onNavigationItemSelected  login");
+            fragmentTransaction.replace(R.id.mainfragment, mapFragment);
+            fragmentTransaction.addToBackStack("1");
+            mapFragment.getMapAsync(this);
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.placesList) {
 
-        } else if (id == R.id.nav_share) {
+            Log.d(Tag,"onNavigationItemSelected  placesList");
+            DestinationsFragment placesfragment = DestinationsFragment.newInstance("","");
+            fragmentTransaction.replace( R.id.mainfragment, placesfragment );
+            fragmentTransaction.addToBackStack("1");
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.addPlace) {
+
+        } else if (id == R.id.getPath) {
 
         }
-
+        fragmentTransaction.commit();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
