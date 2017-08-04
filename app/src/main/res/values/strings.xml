@@ -4,9 +4,13 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
+
     <string name="title_activity_maps">Map</string>
 
+    <!-- TODO: Remove or change this Destinationholder text -->
+    <string name="Destinationlist">Your destinations are shown below:</string>
+    <string name="addDestination">Please input your travel schedule:</string>
+
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Your destinations are shown below:</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

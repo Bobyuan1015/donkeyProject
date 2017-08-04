@@ -6,11 +6,11 @@
             android:id="@+id/login"
             android:title="Login" />
         <item
-            android:id="@+id/placesList"
-            android:title="PlaceList" />
+            android:id="@+id/DestinationsList"
+            android:title="DestinationList" />
         <item
-            android:id="@+id/addPlace"
-            android:title="AddPlace" />
+            android:id="@+id/addDestination"
+            android:title="AddDestination" />
         <item
             android:id="@+id/getPath"
             android:title="GetPath" />

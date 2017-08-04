@@ -4,20 +4,20 @@ package yuancom.bob.myapplication.geographicInfo;
  * Created by bob on 25/07/2017.
  */
 
-public class Place {
+public class Destination {
 
-    private String mPlaceName;
+    private String mDestinationName;
     private double mLongitude;
     private double mLatitude;
 
-    public Place(String name, double longitude, double latitude){
-        this.mPlaceName = name;
+    public Destination(String name, double longitude, double latitude){
+        this.mDestinationName = name;
         this.mLongitude = longitude;
         this.mLatitude = latitude;
     }
     public String getName()
     {
-        return mPlaceName;
+        return mDestinationName;
     }
     public double getLongitude()
     {
@@ -34,12 +34,12 @@ public class Place {
      */
     public boolean equals(Object obj)
     {
-        if(!(obj instanceof Place)) return false;
+        if(!(obj instanceof Destination)) return false;
 
 
-        if ( mPlaceName.equals(((Place)obj).getName() )
-                &&( mLongitude == ((Place)obj).geLatitude())
-                && ( mLongitude == ((Place)obj).getLongitude()))
+        if ( mDestinationName.equals(((Destination)obj).getName() )
+                &&( mLongitude == ((Destination)obj).geLatitude())
+                && ( mLongitude == ((Destination)obj).getLongitude()))
             return true;
 
         return false ;
@@ -47,7 +47,7 @@ public class Place {
 
     public String toString()
     {
-        return mPlaceName + " ( " + mLongitude + " , " + mLatitude + " )";
+        return mDestinationName + " ( " + mLongitude + " , " + mLatitude + " )";
     }
 
 }
