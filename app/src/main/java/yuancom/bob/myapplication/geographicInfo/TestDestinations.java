@@ -1,5 +1,7 @@
 package yuancom.bob.myapplication.geographicInfo;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 
 /**
@@ -41,6 +43,10 @@ public class TestDestinations {
         destinationOperations.add( new Destination("Keresley", 52.449947, -1.531392));
         destinationOperations.add( new Destination("Wolston", 52.373191, -1.408356));
         return destinationOperations.getmArrayDestinationList();
+    }
+    public ArrayList<LatLng> getLatLngInfo(){
+
+        return destinationOperations.getmArrayLatLngList();
     }
 
     public void addDestination( Destination desination )

@@ -1,5 +1,7 @@
 package yuancom.bob.myapplication.geographicInfo;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -9,7 +11,7 @@ import java.util.Iterator;
 
 public class DestinationOperations {
     private static ArrayList<Destination> mArrayDestinationList;
-
+    private static ArrayList<LatLng> mArrayLatLngList;
 
     /**
      Private Constructor, it means users cannot allow to new this object except for getInstance()
@@ -24,27 +26,32 @@ public class DestinationOperations {
     public static DestinationOperations getInstance(){
         if( mArrayDestinationList == null )
             mArrayDestinationList = new ArrayList<Destination>();
+        if( mArrayLatLngList == null )
+            mArrayLatLngList = new ArrayList<LatLng>();
         return new DestinationOperations() ;
     }
 
     public ArrayList<Destination> getmArrayDestinationList(){
         return mArrayDestinationList;
     }
-
+    public ArrayList<LatLng> getmArrayLatLngList(){
+        return mArrayLatLngList;
+    }
     /**
      * Add a new Destination to the list, if not already there
-     * @param  Destination, the Destination to add
+     * @param  destination, the Destination to add
      * @return  true if successful, else false
      * @throws NullPointerException if Destination is null
      */
-    public boolean add(Destination Destination) throws NullPointerException{
-        if ( Destination == null )
+    public boolean add(Destination destination) throws NullPointerException{
+        if ( destination == null )
         {
             throw new NullPointerException("The Destination is empty, data invalid");
         }
         else
         {
-            mArrayDestinationList.add( Destination );
+            mArrayDestinationList.add( destination );
+            mArrayLatLngList.add( new LatLng( destination.getLongitude(),destination.geLatitude()));
         }
         return true;
 
@@ -56,15 +63,15 @@ public class DestinationOperations {
 
     /**
      * Remove an Destination from the list
-     * @param Destination, the Destination to remove
+     * @param destination, the Destination to remove
      * @return  true if successful, else false
      * @throws NullPointerException if Destination is null
      */
 
-    public boolean remove(Destination Destination) throws NullPointerException
+    public boolean remove(Destination destination) throws NullPointerException
     {
 
-        if ( Destination == null )
+        if ( destination == null )
         {
             throw new NullPointerException("The Destination is empty, data invalid");
         }
@@ -74,15 +81,20 @@ public class DestinationOperations {
         }
 
         Iterator<Destination> iter = mArrayDestinationList.iterator();
-        while (iter.hasNext()) {
-            Destination interatorOfDestination = iter.next();
+        Iterator<LatLng> iterLatLng = mArrayLatLngList.iterator();
 
-            if (interatorOfDestination.equals(Destination ))
+        while (iter.hasNext() & iterLatLng.hasNext()) {
+            Destination interatorOfDestination = iter.next();
+            iterLatLng.next();
+
+            if (interatorOfDestination.equals(destination ))
             {
+                iterLatLng.remove();
                 iter.remove();
                 return true;
             }
         }
+
         return false;
     }
     // POST: if string is null the exception is thrown; otherwise

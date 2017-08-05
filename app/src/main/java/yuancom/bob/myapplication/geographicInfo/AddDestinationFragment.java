@@ -86,6 +86,8 @@ public class AddDestinationFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 TestDestinations.getInstance().addDestination(addDestination);
+                selectedDestination.setText("");
+                addDestination = null;
             }
         });
 
