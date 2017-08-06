@@ -237,10 +237,11 @@ public class MainActivity extends AppCompatActivity
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
           //  return;
+            Log.d(Tag, "onMapReady setMyLocationEnabled" );
             mMap.setMyLocationEnabled(true);
         }
 
-       // moveCameraCenter();
+       moveCameraCenter();
         switch ( mapflage ){
             case SETMARKER:  setMarker(); break;
             case GENPATH:  setPath(); break;
