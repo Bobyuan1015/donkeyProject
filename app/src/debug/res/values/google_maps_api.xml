@@ -24,6 +24,14 @@
         <!--AIzaSyD0jDG1xQ76wjj9yXDkkhltNdBBznN_sXU-->
     <!--</string>-->
 
+    <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">-->
+        <!--AIzaSyCuMtT4qm5UE8XT015iYxuNKIfcu2M_JUY-->
+    <!--</string>-->
+
+
+    <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">-->
+        <!--AIzaSyB6UC1vIvYo5WKsZ8I9DqUFqSYVrsnzYQs-->
+    <!--</string>-->
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
         AIzaSyCuMtT4qm5UE8XT015iYxuNKIfcu2M_JUY
     </string>

@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.PolyUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,13 +24,17 @@ import java.util.List;
  */
 
 public class BackEndSession extends AsyncTask<String, Void, String>{
-    private static final String DIRECTION_URL_API = "https://maps.googleapis.com/maps/api/directions/json?";
-    private static final String GOOGLE_API_KEY = "AIzaSyB6UC1vIvYo5WKsZ8I9DqUFqSYVrsnzYQs";
+
     final String Tag = "BackEndSession";
+    private DownloadListener downloadListener;
+    public BackEndSession (DownloadListener downloadListener){
+        this.downloadListener = downloadListener;
+    }
 
     @Override
     protected String doInBackground(String... params) {
         String link = params[0];
+        Log.d(Tag,"doInBackground param[0]="+link);
         try {
             URL url = new URL(link);
             InputStream is = url.openConnection().getInputStream();
@@ -39,8 +44,9 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
             String line;
             while ((line = reader.readLine()) != null) {
                 buffer.append(line + "\n");
+                buffer.append(line );
             }
-            Log.d(Tag,"download data:/n"+buffer.toString());
+
             return buffer.toString();
 
         } catch (MalformedURLException e) {
@@ -51,6 +57,7 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
         return null;
     }
     protected void onPostExecute(String res) {
+        Log.d(Tag,"onPostExecute, res="+res);
         try {
             parseJSon(res);
         } catch (JSONException e) {
@@ -59,35 +66,56 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
 
     }
     private void parseJSon(String data) throws JSONException {
-//        if (data == null)
-//            return;
-//
-//        List<Route> routes = new ArrayList<Route>();
-//        JSONObject jsonData = new JSONObject(data);
-//        JSONArray jsonRoutes = jsonData.getJSONArray("routes");
-//        for (int i = 0; i < jsonRoutes.length(); i++) {
-//            JSONObject jsonRoute = jsonRoutes.getJSONObject(i);
-//            Route route = new Route();
-//
-//            JSONObject overview_polylineJson = jsonRoute.getJSONObject("overview_polyline");
-//            JSONArray jsonLegs = jsonRoute.getJSONArray("legs");
-//            JSONObject jsonLeg = jsonLegs.getJSONObject(0);
-//            JSONObject jsonDistance = jsonLeg.getJSONObject("distance");
-//            JSONObject jsonDuration = jsonLeg.getJSONObject("duration");
-//            JSONObject jsonEndLocation = jsonLeg.getJSONObject("end_location");
-//            JSONObject jsonStartLocation = jsonLeg.getJSONObject("start_location");
-//
-//            route.distance = new Distance(jsonDistance.getString("text"), jsonDistance.getInt("value"));
+        Log.d(Tag,"parseJSon, data="+data);
+        if (data == null)
+            return;
+
+        List<Route> routes = new ArrayList<Route>();
+        JSONObject jsonData = new JSONObject(data);
+        JSONArray jsonRoutes = jsonData.getJSONArray("routes");
+
+        ArrayList<LatLng> overlayPolyline = new ArrayList<LatLng>();
+        for (int i = 0; i < jsonRoutes.length(); i++) {
+            JSONObject jsonRoute = jsonRoutes.getJSONObject(i);
+            Route route = new Route();
+
+            JSONObject overview_polylineJson = jsonRoute.getJSONObject("overview_polyline");
+            JSONArray jsonLegs = jsonRoute.getJSONArray("legs");
+
+            ArrayList <Object> objectlegs=  ArrayJasonUtil.convert(jsonLegs);
+            JSONObject jsonLeg = jsonLegs.getJSONObject(0);
+            JSONObject jsonDistance = jsonLeg.getJSONObject("distance");
+            JSONObject jsonDuration = jsonLeg.getJSONObject("duration");
+            JSONObject jsonEndLocation = jsonLeg.getJSONObject("end_location");
+            JSONObject jsonStartLocation = jsonLeg.getJSONObject("start_location");
+
+//            route.legs. = new Distance(jsonDistance.getString("text"), jsonDistance.getInt("value"));
 //            route.duration = new Duration(jsonDuration.getString("text"), jsonDuration.getInt("value"));
 //            route.endAddress = jsonLeg.getString("end_address");
 //            route.startAddress = jsonLeg.getString("start_address");
 //            route.startLocation = new LatLng(jsonStartLocation.getDouble("lat"), jsonStartLocation.getDouble("lng"));
 //            route.endLocation = new LatLng(jsonEndLocation.getDouble("lat"), jsonEndLocation.getDouble("lng"));
-//            route.points = decodePolyLine(overview_polylineJson.getString("points"));
+//
+//            overlayPolyline = PolyUtil.decode(overview_polylineJson.getString("points");
 //
 //            routes.add(route);
-//        }
-//
-//        listener.onDirectionFinderSuccess(routes);
+        }
+        JSONArray jasonWaypoints = jsonData.getJSONArray("geocoded_waypoints");
+        for (int i = 0; i < jasonWaypoints.length(); i++) {
+            JSONObject jasonWaypoint = jasonWaypoints.getJSONObject(i);
+
+        }
+
+        JSONArray jasonAvailableTravelModes = jsonData.getJSONArray("available_travel_modes");
+        for (int i = 0; i < jasonAvailableTravelModes.length(); i++) {
+            JSONObject jasonAvailableTravelMode = jasonAvailableTravelModes.getJSONObject(i);
+
+        }
+        JSONObject jasonStatus= jsonData.getJSONObject("status");
+
+
+            ResponseElements responseContent = new ResponseElements();
+
+        downloadListener.onFinishDownload(responseContent);
     }
 }

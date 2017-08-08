@@ -27,17 +27,24 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
+import yuancom.bob.myapplication.Modules.BackEndSession;
+import yuancom.bob.myapplication.Modules.DownloadListener;
+import yuancom.bob.myapplication.Modules.RequestUrlBuilder;
+import yuancom.bob.myapplication.Modules.ResponseElements;
 import yuancom.bob.myapplication.geographicInfo.AddDestinationFragment;
 
+import yuancom.bob.myapplication.geographicInfo.Destination;
 import yuancom.bob.myapplication.geographicInfo.DestinationsFragment;
 import yuancom.bob.myapplication.geographicInfo.TestDestinations;
 
 
 public class MainActivity extends AppCompatActivity
-        implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
+        implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener,DownloadListener {
 
     final String Tag = "MainActivity";
     private GoogleMap mMap;
@@ -151,23 +158,31 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void moveCameraCenter() {
-        Log.d(Tag, "moveCameraCenter: ");
+    public void moveCameraCenter( LatLng[] latLngs) {
+//        Log.d(Tag, "moveCameraCenter: ");
+//        LatLngBounds.Builder boundsBuilder = LatLngBounds.builder();
+//
+//        TestDestinations.getInstance().getDestinationsInfo();
+//
+//        ArrayList<LatLng> destinationLatLngs = TestDestinations.getInstance().getLatLngInfo();
+//
+//        Iterator<LatLng> iterLatLng = destinationLatLngs.iterator();
+//
+//        while (iterLatLng.hasNext()) {
+//            LatLng address = iterLatLng.next();
+//            boundsBuilder.include(address);
+//            // Log.d(Tag,address.toString());
+//        }
+//
+//        // Move camera to show all markers and locations
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50));
+
+        Log.d(Tag, "moveCameraCenter ");
         LatLngBounds.Builder boundsBuilder = LatLngBounds.builder();
 
-        TestDestinations.getInstance().getDestinationsInfo();
+       for(LatLng coordinate: latLngs)
+            boundsBuilder.include(coordinate);
 
-        ArrayList<LatLng> destinationLatLngs = TestDestinations.getInstance().getLatLngInfo();
-
-        Iterator<LatLng> iterLatLng = destinationLatLngs.iterator();
-
-        while (iterLatLng.hasNext()) {
-            LatLng address = iterLatLng.next();
-            boundsBuilder.include(address);
-            // Log.d(Tag,address.toString());
-        }
-
-        // Move camera to show all markers and locations
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50));
     }
 
@@ -195,12 +210,32 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void setPath() {
+    public void setPath() throws UnsupportedEncodingException{
         Log.d(Tag, "setPath");
 
-        PolylineOptions polylineOptions = new PolylineOptions();
+
         TestDestinations.getInstance().getDestinationsInfo();
-        polylineOptions.addAll(TestDestinations.getInstance().getLatLngInfo());
+        ArrayList<LatLng> testlatLngs = TestDestinations.getInstance().getLatLngInfo();
+        Iterator<LatLng> itertestLatLng = testlatLngs.iterator();
+        int number = 0;
+        String coordinations[] = new String[2];
+        LatLng latLng1[] = new LatLng[2];
+        while ( itertestLatLng.hasNext() && number < 2 ) {
+
+            LatLng latLng = itertestLatLng.next();
+            latLng1[number] = latLng;
+            coordinations[number] = Double.toString(latLng.latitude) +","+ Double.toString(latLng.longitude);
+            Log.d(Tag,"coordination["+number+"]= "+coordinations[number]);
+            number ++;
+
+        }
+        RequestUrlBuilder requestUrlBuilder = new RequestUrlBuilder();
+        BackEndSession backEndSession = new BackEndSession(this);
+        backEndSession.execute(requestUrlBuilder.urlCreator( coordinations[0],coordinations[1]));
+        PolylineOptions polylineOptions = new PolylineOptions();
+        polylineOptions.add( latLng1[0]);
+        polylineOptions.add( latLng1[1]);
+        moveCameraCenter(latLng1);
         mMap.addPolyline(polylineOptions);
 
 //        ArrayList<LatLng> destinationLatLngs = TestDestinations.getInstance().getLatLngInfo();
@@ -229,35 +264,31 @@ public class MainActivity extends AppCompatActivity
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
         {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-          //  return;
             Log.d(Tag, "onMapReady setMyLocationEnabled" );
             mMap.setMyLocationEnabled(true);
         }
-
-       moveCameraCenter();
         switch ( mapflage ){
-            case SETMARKER:  setMarker(); break;
-            case GENPATH:  setPath(); break;
+            case SETMARKER:   break;
+            case GENPATH:
+                try {
+                    setPath();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                break;
             default:
                 Log.d(Tag,"Nothing to do on the map");
         }
 
 
 
-
-
-        // Polylines are useful for marking paths and routes on the map.
-
-
-
-
+//        moveCameraCenter();
+//        switch ( mapflage ){
+//            case SETMARKER:  setMarker(); break;
+//            case GENPATH:  setPath(); break;
+//            default:
+//                Log.d(Tag,"Nothing to do on the map");
+//        }
 
 
 
@@ -291,6 +322,17 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    @Override
+    public void onStartDownload() {
+
+    }
+
+    @Override
+    public void onFinishDownload(ResponseElements responseElements) {
+//        PolylineOptions polylineOptions = new PolylineOptions();
+//        polylineOptions.addAll();
+//        mMap.addPolyline(polylineOptions);
+    }
 }
 
 

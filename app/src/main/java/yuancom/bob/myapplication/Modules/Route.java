@@ -2,6 +2,7 @@ package yuancom.bob.myapplication.Modules;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ public class Route {
 
     public String summary;
     // contains a short textual description for the route, suitable for naming and disambiguating the route from alternatives.
-    public Leg[] legs;
+    public ArrayList<Leg> legs;
     // contains an array which contains information about a leg of the route, between two locations within the given route. A separate leg will be present for each waypoint or destination specified. (A route with no waypoints will contain exactly one leg within the legs array.) Each leg consists of a series of steps. (See Directions Legs below.)
     public int[] waypoint_order;
     //(or <waypoint_index> in XML) contains an array indicating the order of any waypoints in the calculated route. This waypoints may be reordered if the request was passed optimize:true within its waypoints parameter.
