@@ -1,8 +1,7 @@
 package yuancom.bob.myapplication;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.Fragment;
+
 import android.app.FragmentTransaction;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -30,7 +29,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Random;
+
 
 import yuancom.bob.myapplication.Modules.BackEndSession;
 import yuancom.bob.myapplication.Modules.DownloadListener;
@@ -73,7 +72,6 @@ public class MainActivity extends AppCompatActivity
 
         mapFragment = MapFragment.newInstance();
         getFragmentManager().beginTransaction().add(R.id.mainfragment, mapFragment).commit();
-
     }
 
     @Override

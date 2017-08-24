@@ -5,7 +5,7 @@ package yuancom.bob.myapplication.Modules;
  */
 
 public class GeocodedWaypoint {
-    public Status geocoder_status;
+    public String geocoder_status;
     public boolean partial_match;
     public String place_id;
     public String type[];
