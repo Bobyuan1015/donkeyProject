@@ -26,6 +26,8 @@ public class Fare {
                 text = c;
         }
 
-
-
+    @Override
+    public String toString() {
+        return "currency,"+currency+" value,"+value+" text,"+text;
+    }
 }

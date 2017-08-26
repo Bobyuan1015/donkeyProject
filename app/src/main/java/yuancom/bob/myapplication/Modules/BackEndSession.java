@@ -69,6 +69,16 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
         if( mFileCounter > 100)
             mFileCounter = 0;
         FileOutputStream outputStream;
+//        File file = new File("/sdcard/donckeydata");
+//        file.mkdir();
+//        if (!file.exists()) {
+//            if (file.mkdir()) {
+//                Log.d(Tag,"Directory is created!");
+//            } else {
+//                Log.d(Tag,"Failed to create directory!");
+//            }
+//        }
+
 
         try {
             outputStream = new FileOutputStream("/sdcard/donckeydata/DonckeyMapInf"+ mFileCounter +".json");
@@ -92,25 +102,37 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
         Log.d(Tag,"parseJSon ----begin----");
         if (data == null)
             return;
-        responseElements = new ResponseElements();
+        responseElements = null;
+        String status;
+        GeocodedWaypoint[] geocodedWaypoints;
+        Route[] routs;
+        String[] available_travel_modes = null ;
 
-         String[] available_travel_modes;
-         String status;
         JSONObject jsonData = new JSONObject(data);
-        responseElements.status = jsonData.getJSONObject("status").toString();
+        status = jsonData.getString("status");
 
-        if( responseElements.status.equals("OK")) {
-
+        if( status.equals("OK")) {
+// parse available_travel_modes information
+            try {
+                JSONArray jasonTravelModes = jsonData.getJSONArray("available_travel_modes");
+                available_travel_modes = new String[jasonTravelModes.length()];
+                for (int i =0; i< jasonTravelModes.length();i++)
+                {
+                    available_travel_modes[i] = jasonTravelModes.getJSONObject(i).toString();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 // parse WayPoints information
             JSONArray jasonWaypoints = jsonData.getJSONArray("geocoded_waypoints");
             Log.d(Tag, "Waypoints length= " + jasonWaypoints.length());
-            GeocodedWaypoint[] geocodedWaypoints = new GeocodedWaypoint[jasonWaypoints.length()];
+            geocodedWaypoints= new GeocodedWaypoint[jasonWaypoints.length()];
             String[] types;
             Leg leg[];
             for (int i = 0; i < jasonWaypoints.length(); i++) {
                 JSONObject jasonWaypoint = jasonWaypoints.getJSONObject(i);
-                geocodedWaypoints[i].geocoder_status = jasonWaypoint.getString("geocoder_status");
-                geocodedWaypoints[i].place_id = jasonWaypoint.getString("place_id");
+                String geocoder_status = jasonWaypoint.getString("geocoder_status");
+                String place_id = jasonWaypoint.getString("place_id");
                 try {
                     geocodedWaypoints[i].partial_match = jasonWaypoint.getBoolean("partial_match");
                 } catch (JSONException e) {
@@ -120,25 +142,43 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
                 Log.d(Tag, "Waypoints.length= " + type.length());
                 types = new String[type.length()];
                 for (int j = 0; j < type.length(); j++) {
-                    types[j] = type.getJSONObject(j).toString();
+                    types[j] = type.getString(j);
                     Log.d(Tag, types[j]);
                 }
+                GeocodedWaypoint geocodedWaypointTem = new GeocodedWaypoint();
+                geocodedWaypointTem.geocoder_status = geocoder_status;
+                geocodedWaypointTem.place_id = place_id;
+                geocodedWaypointTem.types = types;
+                geocodedWaypoints[i] = geocodedWaypointTem;
+//                geocodedWaypoints[i].geocoder_status = geocoder_status;
+//                geocodedWaypoints[i].place_id = place_id;
+//                geocodedWaypoints[i].types = types;
             }
 // parse Routes information
             JSONArray jasonRoutes = jsonData.getJSONArray("routes");
             Log.d(Tag, "jasonRoutes length= " + jasonRoutes.length());
-            Route[] routs = new Route[jasonRoutes.length()];
+            routs = new Route[jasonRoutes.length()];
             String[] warnings;
             int[] waypointOrder;
             for (int i = 0; i < jasonRoutes.length(); i++) {
                 JSONObject jasonRoute = jasonRoutes.getJSONObject(i);
+                Route routstemp = new Route();
 // parse Routes----Bounds information
-                routs[i].bounds.northeast = new LatLng(jasonRoute.getJSONObject("northeast").getDouble("lat"),
-                        jasonRoute.getJSONObject("southwest").getDouble("lng"));
-                routs[i].bounds.northeast = new LatLng(jasonRoute.getJSONObject("southwest").getDouble("lat"),
-                        jasonRoute.getJSONObject("southwest").getDouble("lng"));
+                Bound boundTmp = new Bound();
+                Log.d(Tag,"northeast");
+                Log.d(Tag," 1lag="+jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lat"));
+                Log.d(Tag," 1lng"+jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lng"));
+                boundTmp.northeast = new LatLng(jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lat"),
+                        jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lng"));
+                boundTmp.southwest = new LatLng(jasonRoute.getJSONObject("bounds").getJSONObject("southwest").getDouble("lat"),
+                        jasonRoute.getJSONObject("bounds").getJSONObject("southwest").getDouble("lng"));
+                routstemp.bounds = boundTmp;
+//                routs[i].bounds.northeast = new LatLng(jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lat"),
+//                        jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lng"));
+//                routs[i].bounds.northeast = new LatLng(jasonRoute.getJSONObject("bounds").getJSONObject("southwest").getDouble("lat"),
+//                        jasonRoute.getJSONObject("bounds").getJSONObject("southwest").getDouble("lng"));
 // parse Routes----copyrights information
-                routs[i].copyrights = jasonRoute.getString("copyrights");
+                routstemp.copyrights = jasonRoute.getString("copyrights");
 // parse Routes----warnings information
                 try {
                     JSONArray jasonRoutWarnings = jasonRoute.getJSONArray("warnings");
@@ -150,12 +190,12 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
                     e.printStackTrace();
                 }
 // parse Routes----summary information
-                routs[i].summary = jasonRoute.getString("summary");
+                routstemp.summary = jasonRoute.getString("summary");
 // parse Routes----overview_polylines information
-                routs[i].overview_polyline = jasonRoute.getString("overview_polyline");
+                routstemp.overview_polyline = jasonRoute.getString("overview_polyline");
 // parse Routes----fare information
                 try {
-                    routs[i].fare = new Fare(jasonRoute.getJSONObject("fare").getString("currency"),
+                    routstemp.fare = new Fare(jasonRoute.getJSONObject("fare").getString("currency"),
                             jasonRoute.getJSONObject("fare").getString("value"),
                             jasonRoute.getJSONObject("fare").getString("text"));
                 } catch (JSONException e) {
@@ -168,32 +208,35 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
                     for (int n = 0; n < wayPointOrder.length(); n++) {
                         waypointOrder[n] = wayPointOrder.getInt(n);
                     }
-                    routs[i].waypoint_order = waypointOrder;
+                    routstemp.waypoint_order = waypointOrder;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 // parse Routes----legs information
-                JSONArray jasonLegs = jsonData.getJSONArray("legs");
+                JSONArray jasonLegs = jasonRoute.getJSONArray("legs");
                 leg = new Leg[jasonLegs.length()];
-                Step[] steps;
+
                 for (int m = 0; m < jasonLegs.length(); m++) {
                     JSONObject jasonRouteLegs = jasonLegs.getJSONObject(m);
+                    Leg legtemp = new Leg();
 // parse Routes----legs----distance information
-                    leg[m].distance = new Distance(jasonRouteLegs.getJSONObject("distance").getString("text"),
+                    legtemp.distance = new Distance(jasonRouteLegs.getJSONObject("distance").getString("text"),
                             jasonRouteLegs.getJSONObject("distance").getInt("value"));
 // parse Routes----legs----duration information
-                    leg[m].duration = new Duration(jasonRouteLegs.getJSONObject("duration").getString("text"),
+                    legtemp.duration = new Duration(jasonRouteLegs.getJSONObject("duration").getString("text"),
                             jasonRouteLegs.getJSONObject("duration").getInt("value"));
 // parse Routes----legs----start_address information
-                    leg[m].startAddress = jasonRouteLegs.getString("start_address");
+                    legtemp.startAddress = jasonRouteLegs.getString("start_address");
 // parse Routes----legs----start_location information
-                    leg[m].startLocation = new LatLng(jasonRouteLegs.getJSONObject("start_location").getDouble("lat"),
+                    legtemp.startLocation = new LatLng(jasonRouteLegs.getJSONObject("start_location").getDouble("lat"),
                             jasonRouteLegs.getJSONObject("end_location").getDouble("lng"));
 // parse Routes----legs----end_address information
-                    leg[m].endAddress = jasonRouteLegs.getString("end_address");
+                    legtemp.endAddress = jasonRouteLegs.getString("end_address");
 // parse Routes----legs----end_Location information
-                    leg[m].endLocation = new LatLng(jasonRouteLegs.getJSONObject("start_location").getDouble("lat"),
+                    legtemp.endLocation = new LatLng(jasonRouteLegs.getJSONObject("start_location").getDouble("lat"),
                             jasonRouteLegs.getJSONObject("end_location").getDouble("lng"));
+                    leg[m] = legtemp;
+
 // parse Routes----legs----arrival_time information
 // parse Routes----legs----departure_time information
 // parse Routes----legs----via_point information
@@ -201,35 +244,43 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
 // parse Routes----legs----duration_in_traffic information
 // parse Routes----legs----steps[] information
                     JSONArray jasonSteps = jasonRouteLegs.getJSONArray("steps");
-                    steps = new Step[jasonSteps.length()];
+                    Step[] steps = new Step[jasonSteps.length()];
                     for (int x = 0; x < jasonSteps.length(); x++) {
                         JSONObject jasonStep = jasonSteps.getJSONObject(x);
+                        Step steptemp = new Step();
 // parse Routes----legs----steps[]----distance information
-                        steps[x].distance = new Distance(jasonStep.getJSONObject("distance").getString("text"),
+                        steptemp.distance = new Distance(jasonStep.getJSONObject("distance").getString("text"),
                                 jasonStep.getJSONObject("distance").getInt("value"));
 // parse Routes----legs----steps[]----duration information
-                        steps[x].duration = new Duration(jasonStep.getJSONObject("duration").getString("text"),
+                        steptemp.duration = new Duration(jasonStep.getJSONObject("duration").getString("text"),
                                 jasonStep.getJSONObject("duration").getInt("value"));
 // parse Routes----legs----steps[]----end_location information
-                        steps[x].end_location = new LatLng(jasonStep.getJSONObject("end_location").getDouble("lat"),
+                        steptemp.end_location = new LatLng(jasonStep.getJSONObject("end_location").getDouble("lat"),
                                 jasonStep.getJSONObject("start_location").getDouble("lng"));
 // parse Routes----legs----steps[]----html_instructions information
-                        steps[m].html_instructions = jasonStep.getJSONObject("html_instructions").toString();
+                        steptemp.html_instructions = jasonStep.getString("html_instructions");
 // parse Routes----legs----steps[]----polyline information
-                        steps[m].polyline = jasonStep.getJSONObject("polyline").toString();
+                        steptemp.polyline = jasonStep.getJSONObject("polyline").getString("points");
 // parse Routes----legs----steps[]----start_location information
-                        steps[m].polyline = jasonStep.getJSONObject("start_location").toString();
+                        steptemp.start_location = new LatLng(jasonStep.getJSONObject("start_location").getDouble("lat"),
+                                jasonStep.getJSONObject("start_location").getDouble("lng"));
 // parse Routes----legs----steps[]----travel_mode information
-                        steps[m].polyline = jasonStep.getJSONObject("travel_mode").toString();
-
+                        steptemp.travel_mode = jasonStep.getString("travel_mode");
+                        steps[x] = steptemp;
                     }
+                    leg[m].steps = steps;
                 }
-
+                routstemp.legs = leg;
+                routs[i] = routstemp;
             }
+            responseElements = new ResponseElements( status, geocodedWaypoints, routs, available_travel_modes);
+
         }else {
             Log.d(Tag,"google service response ( "+ responseElements.status+" )");
         }
+
         downloadListener.onFinishDownload(responseElements);
         Log.d(Tag,"parseJSon ----end----");
+
     }
 }

@@ -4,7 +4,9 @@ import android.Manifest;
 
 import android.app.FragmentTransaction;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.support.design.widget.NavigationView;
@@ -28,13 +30,20 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 
 import yuancom.bob.myapplication.Modules.BackEndSession;
 import yuancom.bob.myapplication.Modules.DownloadListener;
+import yuancom.bob.myapplication.Modules.Leg;
 import yuancom.bob.myapplication.Modules.RequestUrlBuilder;
 import yuancom.bob.myapplication.Modules.ResponseElements;
+import yuancom.bob.myapplication.Modules.Route;
+import yuancom.bob.myapplication.Modules.Step;
 import yuancom.bob.myapplication.geographicInfo.AddDestinationFragment;
 
 import yuancom.bob.myapplication.geographicInfo.Destination;
@@ -156,7 +165,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void moveCameraCenter( LatLng[] latLngs) {
+    public void moveCameraCenter( List<LatLng> latLngs) {
 //        Log.d(Tag, "moveCameraCenter: ");
 //        LatLngBounds.Builder boundsBuilder = LatLngBounds.builder();
 //
@@ -230,29 +239,7 @@ public class MainActivity extends AppCompatActivity
         RequestUrlBuilder requestUrlBuilder = new RequestUrlBuilder();
         BackEndSession backEndSession = new BackEndSession(this);
         backEndSession.execute(requestUrlBuilder.urlCreator( coordinations[0],coordinations[1]));
-        PolylineOptions polylineOptions = new PolylineOptions();
-        polylineOptions.add( latLng1[0]);
-        polylineOptions.add( latLng1[1]);
-        moveCameraCenter(latLng1);
-        mMap.addPolyline(polylineOptions);
 
-//        ArrayList<LatLng> destinationLatLngs = TestDestinations.getInstance().getLatLngInfo();
-//
-//        Iterator<LatLng> iterLatLng = destinationLatLngs.iterator();
-//
-//        while ( iterLatLng.hasNext()) {
-//            LatLng address= iterLatLng.next();
-//            mMap.addMarker(new MarkerOptions()
-//                    .position(address)
-//                    .title("target")
-//                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-//        }
-//        mMap.addPolyline(new PolylineOptions().geodesic(true)
-//                .add(new LatLng(-33.866, 151.195))  // Sydney
-//                .add(new LatLng(-18.142, 178.431))  // Fiji
-//                .add(new LatLng(21.291, -157.821))  // Hawaii
-//
-//        );
     }
 
     @Override
@@ -327,10 +314,98 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onFinishDownload(ResponseElements responseElements) {
+        Log.d(Tag,"responseElements:");
+
+        Log.d(Tag,responseElements.toString());
+//test whether decodePolyLine() can work or not ,the testdata from https://developers.google.com/maps/documentation/utilities/polylinealgorithm#example
+//        List<LatLng> decod = decodePolyLine("_p~iF~ps|U_ulLnnqC_mqNvxq`@");
+//        Log.d(Tag,"dec="+ Arrays.toString(decod.toArray()));
+        String decodedPolylines = "";
+        PolylineOptions polylineOptions = new PolylineOptions();
+        List<LatLng> line = new ArrayList<LatLng>();
+        for ( Route route : responseElements.routs)
+        {
+            for( Leg leg : route.legs ){
+                for(Step step : leg.steps)
+                {
+                    try {
+//                        decodedPolylines = step.polyline; // errr,   an encodedPolylines can't be combined by multiple single polyline
+                        Log.d(Tag, "polyline = " + step.polyline);
+                        line.addAll(decodePolyLine(step.polyline));
+                    }catch ( StringIndexOutOfBoundsException e){
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }
+            mMap.addPolyline(new PolylineOptions()
+                    .addAll(line)
+                    .color(Color.BLACK));
+            moveCameraCenter(line);
+
+
+
+
+
+//        ArrayList<LatLng> destinationLatLngs = TestDestinations.getInstance().getLatLngInfo();
+//
+//        Iterator<LatLng> iterLatLng = destinationLatLngs.iterator();
+//
+//        while ( iterLatLng.hasNext()) {
+//            LatLng address= iterLatLng.next();
+//            mMap.addMarker(new MarkerOptions()
+//                    .position(address)
+//                    .title("target")
+//                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+//        }
+//        mMap.addPolyline(new PolylineOptions().geodesic(true)
+//                .add(new LatLng(-33.866, 151.195))  // Sydney
+//                .add(new LatLng(-18.142, 178.431))  // Fiji
+//                .add(new LatLng(21.291, -157.821))  // Hawaii
+//
+//        );
 //        PolylineOptions polylineOptions = new PolylineOptions();
 //        polylineOptions.addAll();
 //        mMap.addPolyline(polylineOptions);
     }
+    private List<LatLng> decodePolyLine(final String poly) {
+        int len = poly.length();
+        int index = 0;
+        List<LatLng> decoded = new ArrayList<LatLng>();
+        int lat = 0;
+        int lng = 0;
+
+        while (index < len) {
+            int b;
+            int shift = 0;
+            int result = 0;
+            do {
+                b = poly.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lat += dlat;
+
+            shift = 0;
+            result = 0;
+            do {
+                b = poly.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lng += dlng;
+
+            decoded.add(new LatLng(
+                    lat / 100000d, lng / 100000d
+            ));
+        }
+        Log.d(Tag, "decoded = " + decoded);
+        return decoded;
+    }
+
 }
 
 
