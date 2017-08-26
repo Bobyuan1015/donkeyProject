@@ -156,7 +156,8 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
             }
 // parse Routes information
             JSONArray jasonRoutes = jsonData.getJSONArray("routes");
-            Log.d(Tag, "jasonRoutes length= " + jasonRoutes.length());
+            Log.d(Tag, " jasonRoutes length= " + jasonRoutes.length());
+            Log.d(Tag, " parse Routes information");
             routs = new Route[jasonRoutes.length()];
             String[] warnings;
             int[] waypointOrder;
@@ -165,14 +166,12 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
                 Route routstemp = new Route();
 // parse Routes----Bounds information
                 Bound boundTmp = new Bound();
-                Log.d(Tag,"northeast");
-                Log.d(Tag," 1lag="+jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lat"));
-                Log.d(Tag," 1lng"+jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lng"));
                 boundTmp.northeast = new LatLng(jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lat"),
                         jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lng"));
                 boundTmp.southwest = new LatLng(jasonRoute.getJSONObject("bounds").getJSONObject("southwest").getDouble("lat"),
                         jasonRoute.getJSONObject("bounds").getJSONObject("southwest").getDouble("lng"));
                 routstemp.bounds = boundTmp;
+                Log.d(Tag, " parse Routes ----Bounds information");
 //                routs[i].bounds.northeast = new LatLng(jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lat"),
 //                        jasonRoute.getJSONObject("bounds").getJSONObject("northeast").getDouble("lng"));
 //                routs[i].bounds.northeast = new LatLng(jasonRoute.getJSONObject("bounds").getJSONObject("southwest").getDouble("lat"),
@@ -180,6 +179,7 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
 // parse Routes----copyrights information
                 routstemp.copyrights = jasonRoute.getString("copyrights");
 // parse Routes----warnings information
+                Log.d(Tag, " parse Routes ----warnings information");
                 try {
                     JSONArray jasonRoutWarnings = jasonRoute.getJSONArray("warnings");
                     warnings = new String[jasonRoutWarnings.length()];
@@ -194,6 +194,7 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
 // parse Routes----overview_polylines information
                 routstemp.overview_polyline = jasonRoute.getString("overview_polyline");
 // parse Routes----fare information
+                Log.d(Tag, " parse Routes ----fare information");
                 try {
                     routstemp.fare = new Fare(jasonRoute.getJSONObject("fare").getString("currency"),
                             jasonRoute.getJSONObject("fare").getString("value"),
@@ -202,17 +203,21 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
                     e.printStackTrace();
                 }
 // parse Routes----wayPointOrder information
+                Log.d(Tag, " parse Routes ----wayPointOrder information");
                 try {
-                    JSONArray wayPointOrder = jasonRoute.getJSONArray("way_point_order");
+                    JSONArray wayPointOrder = jasonRoute.getJSONArray("waypoint_order");
                     waypointOrder = new int[wayPointOrder.length()];
                     for (int n = 0; n < wayPointOrder.length(); n++) {
                         waypointOrder[n] = wayPointOrder.getInt(n);
+                        Log.d(Tag,"waypoint_order value ="+waypointOrder[n]);
                     }
                     routstemp.waypoint_order = waypointOrder;
+                    Log.d(Tag,"total waypoint_order="+routstemp.waypoint_order);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 // parse Routes----legs information
+                Log.d(Tag, " parse Routes ----legs information");
                 JSONArray jasonLegs = jasonRoute.getJSONArray("legs");
                 leg = new Leg[jasonLegs.length()];
 
@@ -229,11 +234,11 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
                     legtemp.startAddress = jasonRouteLegs.getString("start_address");
 // parse Routes----legs----start_location information
                     legtemp.startLocation = new LatLng(jasonRouteLegs.getJSONObject("start_location").getDouble("lat"),
-                            jasonRouteLegs.getJSONObject("end_location").getDouble("lng"));
+                            jasonRouteLegs.getJSONObject("start_location").getDouble("lng"));
 // parse Routes----legs----end_address information
                     legtemp.endAddress = jasonRouteLegs.getString("end_address");
 // parse Routes----legs----end_Location information
-                    legtemp.endLocation = new LatLng(jasonRouteLegs.getJSONObject("start_location").getDouble("lat"),
+                    legtemp.endLocation = new LatLng(jasonRouteLegs.getJSONObject("end_location").getDouble("lat"),
                             jasonRouteLegs.getJSONObject("end_location").getDouble("lng"));
                     leg[m] = legtemp;
 
@@ -273,7 +278,7 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
                 routstemp.legs = leg;
                 routs[i] = routstemp;
             }
-            responseElements = new ResponseElements( status, geocodedWaypoints, routs, available_travel_modes);
+            responseElements = new ResponseElements( geocodedWaypoints, routs, available_travel_modes,status);
 
         }else {
             Log.d(Tag,"google service response ( "+ responseElements.status+" )");

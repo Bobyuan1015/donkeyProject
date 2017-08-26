@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.ui.IconGenerator;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity
     private static final int GENPATH = 2;
     private static final int SETMARKER = 1;
     private int mapflage = -1;
+    private Route[] routes;
 
 
     @Override
@@ -223,22 +225,11 @@ public class MainActivity extends AppCompatActivity
 
         TestDestinations.getInstance().getDestinationsInfo();
         ArrayList<LatLng> testlatLngs = TestDestinations.getInstance().getLatLngInfo();
-        Iterator<LatLng> itertestLatLng = testlatLngs.iterator();
-        int number = 0;
-        String coordinations[] = new String[2];
-        LatLng latLng1[] = new LatLng[2];
-        while ( itertestLatLng.hasNext() && number < 2 ) {
 
-            LatLng latLng = itertestLatLng.next();
-            latLng1[number] = latLng;
-            coordinations[number] = Double.toString(latLng.latitude) +","+ Double.toString(latLng.longitude);
-            Log.d(Tag,"coordination["+number+"]= "+coordinations[number]);
-            number ++;
 
-        }
         RequestUrlBuilder requestUrlBuilder = new RequestUrlBuilder();
         BackEndSession backEndSession = new BackEndSession(this);
-        backEndSession.execute(requestUrlBuilder.urlCreator( coordinations[0],coordinations[1]));
+        backEndSession.execute(requestUrlBuilder.urlCreator(new LatLng(52.410101, -1.508444),new LatLng(52.410101, -1.508444),testlatLngs));
 
     }
 
@@ -315,59 +306,54 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFinishDownload(ResponseElements responseElements) {
         Log.d(Tag,"responseElements:");
-
+        routes = responseElements.routs;
         Log.d(Tag,responseElements.toString());
 //test whether decodePolyLine() can work or not ,the testdata from https://developers.google.com/maps/documentation/utilities/polylinealgorithm#example
 //        List<LatLng> decod = decodePolyLine("_p~iF~ps|U_ulLnnqC_mqNvxq`@");
 //        Log.d(Tag,"dec="+ Arrays.toString(decod.toArray()));
-        String decodedPolylines = "";
-        PolylineOptions polylineOptions = new PolylineOptions();
+//        String decodedPolylines = "";
+//        PolylineOptions polylineOptions = new PolylineOptions();
         List<LatLng> line = new ArrayList<LatLng>();
+        int distanceLeg = 0;
+        int legNum = 0;
         for ( Route route : responseElements.routs)
         {
             for( Leg leg : route.legs ){
+                distanceLeg = leg.distance.value;
+                if( legNum > 0 && legNum < route.legs.length )
+                {
+                    Log.d(Tag,"legNum="+legNum+"  leg.steps.length="+route.legs.length);
+
+                    mMap.addMarker(new MarkerOptions()
+                            .position(leg.startLocation)
+                            .snippet(Integer.toString(distanceLeg)+"m")
+                            .icon(BitmapDescriptorFactory.
+                                    fromBitmap(
+                                            new IconGenerator(this).
+                                                    makeIcon(Integer.
+                                                            toString(route.waypoint_order[legNum -1 ]+1)))));
+                }
+                legNum++;
                 for(Step step : leg.steps)
                 {
                     try {
 //                        decodedPolylines = step.polyline; // errr,   an encodedPolylines can't be combined by multiple single polyline
                         Log.d(Tag, "polyline = " + step.polyline);
                         line.addAll(decodePolyLine(step.polyline));
+
                     }catch ( StringIndexOutOfBoundsException e){
                         e.printStackTrace();
                     }
-
                 }
             }
         }
+        Log.d(Tag,"distanceLeg"+distanceLeg);
             mMap.addPolyline(new PolylineOptions()
                     .addAll(line)
-                    .color(Color.BLACK));
+                    .color(Color.BLUE));
             moveCameraCenter(line);
 
 
-
-
-
-//        ArrayList<LatLng> destinationLatLngs = TestDestinations.getInstance().getLatLngInfo();
-//
-//        Iterator<LatLng> iterLatLng = destinationLatLngs.iterator();
-//
-//        while ( iterLatLng.hasNext()) {
-//            LatLng address= iterLatLng.next();
-//            mMap.addMarker(new MarkerOptions()
-//                    .position(address)
-//                    .title("target")
-//                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-//        }
-//        mMap.addPolyline(new PolylineOptions().geodesic(true)
-//                .add(new LatLng(-33.866, 151.195))  // Sydney
-//                .add(new LatLng(-18.142, 178.431))  // Fiji
-//                .add(new LatLng(21.291, -157.821))  // Hawaii
-//
-//        );
-//        PolylineOptions polylineOptions = new PolylineOptions();
-//        polylineOptions.addAll();
-//        mMap.addPolyline(polylineOptions);
     }
     private List<LatLng> decodePolyLine(final String poly) {
         int len = poly.length();

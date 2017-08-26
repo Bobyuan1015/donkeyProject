@@ -25,9 +25,11 @@ public class TestDestinations {
 
     public ArrayList<Destination> getDestinationsInfo(){
         if( initialFlag == -1) {
-            destinationOperations.add(new Destination("Pool Meadow Bus Station Fairfax St, Coventry CV1 5SA", 52.410101, -1.508444));
-            destinationOperations.add(new Destination("Asda Coventry Daventry Road Supermarket Daventry Road, Cheylesmore CV3 5HN", 52.393846, -1.503981));
+           // destinationOperations.add(new Destination("Pool Meadow Bus Station Fairfax St, Coventry CV1 5SA", 52.410101, -1.508444));
+
             destinationOperations.add(new Destination("McDonald's  Arlington Business Park, Tile Hill Ln, Coventry CV4 9BJ", 52.402868, -1.557833));
+            destinationOperations.add(new Destination("Asda Coventry Daventry Road Supermarket Daventry Road, Cheylesmore CV3 5HN", 52.393846, -1.503981));
+
             destinationOperations.add(new Destination("Lanchester Library", 52.405764, -1.500293));
             destinationOperations.add(new Destination("Coventry", 52.401044, -1.513843));
             destinationOperations.add(new Destination("Brandon Coventry", 52.384383, -1.401187));
@@ -42,7 +44,7 @@ public class TestDestinations {
             destinationOperations.add(new Destination("Beacon Park Village Lower Sandford St, Lichfield WS13 6JZ", 52.681755, -1.828010));
             destinationOperations.add(new Destination("Coventry", 52.425741, -1.571099));
             destinationOperations.add(new Destination("Keresley", 52.449947, -1.531392));
-            destinationOperations.add(new Destination("Wolston", 52.373191, -1.408356));
+            //destinationOperations.add(new Destination("Wolston", 52.373191, -1.408356));
             initialFlag = 1;
         }
         return destinationOperations.getmArrayDestinationList();
