@@ -209,10 +209,9 @@ public class BackEndSession extends AsyncTask<String, Void, String>{
                     waypointOrder = new int[wayPointOrder.length()];
                     for (int n = 0; n < wayPointOrder.length(); n++) {
                         waypointOrder[n] = wayPointOrder.getInt(n);
-                        Log.d(Tag,"waypoint_order value ="+waypointOrder[n]);
+                        Log.d(Tag,"waypoint_order["+n+"]="+waypointOrder[n]);
                     }
                     routstemp.waypoint_order = waypointOrder;
-                    Log.d(Tag,"total waypoint_order="+routstemp.waypoint_order);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

@@ -315,15 +315,19 @@ public class MainActivity extends AppCompatActivity
 //        PolylineOptions polylineOptions = new PolylineOptions();
         List<LatLng> line = new ArrayList<LatLng>();
         int distanceLeg = 0;
-        int legNum = 0;
+        int legNum = -1;
         for ( Route route : responseElements.routs)
         {
             for( Leg leg : route.legs ){
                 distanceLeg = leg.distance.value;
-                if( legNum > 0 && legNum < route.legs.length )
+                if( legNum > -1 && legNum < route.legs.length )
                 {
-                    Log.d(Tag,"legNum="+legNum+"  leg.steps.length="+route.legs.length);
-
+                    int wayPointorderWithStart = -1;
+                    if (legNum == 0)
+                        wayPointorderWithStart = 0;
+                    else
+                        wayPointorderWithStart = route.waypoint_order[legNum -1 ]+1;
+                    Log.d(Tag,"wayPointorderWithStart"+wayPointorderWithStart);
                     mMap.addMarker(new MarkerOptions()
                             .position(leg.startLocation)
                             .snippet(Integer.toString(distanceLeg)+"m")
@@ -331,26 +335,36 @@ public class MainActivity extends AppCompatActivity
                                     fromBitmap(
                                             new IconGenerator(this).
                                                     makeIcon(Integer.
-                                                            toString(route.waypoint_order[legNum -1 ]+1)))));
+                                                            toString(wayPointorderWithStart)))));
                 }
                 legNum++;
+                int stepnumber = 0;
                 for(Step step : leg.steps)
                 {
                     try {
 //                        decodedPolylines = step.polyline; // errr,   an encodedPolylines can't be combined by multiple single polyline
-                        Log.d(Tag, "polyline = " + step.polyline);
-                        line.addAll(decodePolyLine(step.polyline));
+                      //  Log.d(Tag, "polyline = " + step.polyline);
 
+                        ArrayList<LatLng> stepPoints = (ArrayList<LatLng>) decodePolyLine(step.polyline);
+                        line.addAll(stepPoints);
+                        Log.d(Tag," stepnumber="+stepnumber+"Color.BLACK+stepnumber*0xFF="+Color.BLACK+stepnumber*0xFF);
+                        mMap.addPolyline(new PolylineOptions()
+                                .addAll(stepPoints)
+                                .color(0xFF000000+stepnumber*0xFF));
+                        stepnumber++;
+                       // Thread.sleep(2000);
                     }catch ( StringIndexOutOfBoundsException e){
                         e.printStackTrace();
-                    }
+                    } /*catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }*/
                 }
             }
         }
         Log.d(Tag,"distanceLeg"+distanceLeg);
-            mMap.addPolyline(new PolylineOptions()
-                    .addAll(line)
-                    .color(Color.BLUE));
+//            mMap.addPolyline(new PolylineOptions()
+//                    .addAll(line)
+//                    .color(Color.BLUE));
             moveCameraCenter(line);
 
 
@@ -388,7 +402,7 @@ public class MainActivity extends AppCompatActivity
                     lat / 100000d, lng / 100000d
             ));
         }
-        Log.d(Tag, "decoded = " + decoded);
+      //  Log.d(Tag, "decoded = " + decoded);
         return decoded;
     }
 

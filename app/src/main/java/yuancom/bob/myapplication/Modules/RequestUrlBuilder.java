@@ -25,11 +25,11 @@ public class RequestUrlBuilder {
 
         String urlOrigin = encodeToUtf8( Double.toString(origin.latitude) +","+ Double.toString(origin.longitude));
         String urlDestination = encodeToUtf8( Double.toString(destination.latitude) +","+ Double.toString(destination.longitude));
-        String urlwaypPoints = "|";
+        String urlwaypPoints = "";
         if( wayPoints != null)
         {
             for ( LatLng waypoint : wayPoints)
-                urlwaypPoints += Double.toString(waypoint.latitude) +","+ Double.toString(waypoint.longitude) +"|";
+                urlwaypPoints += "|"+Double.toString(waypoint.latitude) +","+ Double.toString(waypoint.longitude) ;
             Log.d(Tag,"no utf-8 waypPoints= "+urlwaypPoints);
             urlwaypPoints = encodeToUtf8(urlwaypPoints);
             Log.d(Tag," utf-8 waypPoints= "+ urlwaypPoints);
