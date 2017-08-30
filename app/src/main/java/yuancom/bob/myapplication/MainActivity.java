@@ -3,8 +3,15 @@ package yuancom.bob.myapplication;
 import android.Manifest;
 
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -50,6 +57,8 @@ import yuancom.bob.myapplication.geographicInfo.AddDestinationFragment;
 import yuancom.bob.myapplication.geographicInfo.Destination;
 import yuancom.bob.myapplication.geographicInfo.DestinationsFragment;
 import yuancom.bob.myapplication.geographicInfo.TestDestinations;
+
+import static android.graphics.Bitmap.Config.ARGB_8888;
 
 
 public class MainActivity extends AppCompatActivity
@@ -231,6 +240,15 @@ public class MainActivity extends AppCompatActivity
         BackEndSession backEndSession = new BackEndSession(this);
         backEndSession.execute(requestUrlBuilder.urlCreator(new LatLng(52.410101, -1.508444),new LatLng(52.410101, -1.508444),testlatLngs));
 
+//        for( int i=0; i<testlatLngs.size();i++)
+//        {
+//            Log.d(Tag,"testlatLngs.get(i)="+testlatLngs.get(i));
+//            MarkerOptions markerOptions = new MarkerOptions()
+//                .position(testlatLngs.get(i))
+//                .draggable(true)
+//                .icon(BitmapDescriptorFactory.fromBitmap( makeBitmap(this, String.valueOf(i+1))));
+//        mMap.addMarker(markerOptions);
+//        }
     }
 
     @Override
@@ -303,6 +321,28 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    public Bitmap makeBitmap(Context context, String text)
+    {
+        Resources resources = context.getResources();
+        float scale = resources.getDisplayMetrics().density;
+        Bitmap bitmap = BitmapFactory.decodeResource(resources, R.drawable.marker);
+        bitmap = bitmap.copy(ARGB_8888, true);
+
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(Color.BLUE); // Text color
+        paint.setTextSize(14 * scale); // Text size
+        paint.setShadowLayer(1f, 0f, 1f, Color.WHITE); // Text shadow
+        Rect bounds = new Rect();
+        paint.getTextBounds(text, 0, text.length(), bounds);
+
+        int x = bitmap.getWidth() - bounds.width() - 38;
+        int y = bounds.height()+20;
+        canvas.drawText(text, x, y, paint);
+
+        return  bitmap;
+    }
+
     @Override
     public void onFinishDownload(ResponseElements responseElements) {
         Log.d(Tag,"responseElements:");
@@ -314,58 +354,118 @@ public class MainActivity extends AppCompatActivity
 //        String decodedPolylines = "";
 //        PolylineOptions polylineOptions = new PolylineOptions();
         List<LatLng> line = new ArrayList<LatLng>();
+        List<LatLng> line0 = new ArrayList<LatLng>();
+        List<LatLng> line1 = new ArrayList<LatLng>();
+        List<LatLng> line2 = new ArrayList<LatLng>();
+        List<LatLng> line3 = new ArrayList<LatLng>();
+        List<LatLng> line4 = new ArrayList<LatLng>();
+        List<LatLng> line5 = new ArrayList<LatLng>();
+
         int distanceLeg = 0;
-        int legNum = -1;
+        int legNum = 0;
         for ( Route route : responseElements.routs)
         {
             for( Leg leg : route.legs ){
                 distanceLeg = leg.distance.value;
-                if( legNum > -1 && legNum < route.legs.length )
-                {
-                    int wayPointorderWithStart = -1;
-                    if (legNum == 0)
-                        wayPointorderWithStart = 0;
-                    else
-                        wayPointorderWithStart = route.waypoint_order[legNum -1 ]+1;
-                    Log.d(Tag,"wayPointorderWithStart"+wayPointorderWithStart);
-                    mMap.addMarker(new MarkerOptions()
+                Log.d(Tag,"new marker legNum="+legNum+ " route.legs.length="+route.legs.length);
+//                    mMap.addMarker(new MarkerOptions()
+//                            .position(leg.startLocation)
+//                            .snippet(Integer.toString(distanceLeg)+"m")
+//                            .icon(BitmapDescriptorFactory.
+//                                    fromBitmap( new IconGenerator(this).
+//                                                    makeIcon(Integer.toString(route.waypoint_order[legNum -1 ]+1))  )));
+                if(legNum < route.legs.length -1 ) {
+                    MarkerOptions markerOptions = new MarkerOptions()
                             .position(leg.startLocation)
-                            .snippet(Integer.toString(distanceLeg)+"m")
-                            .icon(BitmapDescriptorFactory.
-                                    fromBitmap(
-                                            new IconGenerator(this).
-                                                    makeIcon(Integer.
-                                                            toString(wayPointorderWithStart)))));
+                            .draggable(true)
+                            .icon(BitmapDescriptorFactory.fromBitmap( makeBitmap(this, String.valueOf(route.waypoint_order[legNum]+1 ))));
+                    Log.d(Tag,"endLocation="+leg.endLocation+"   StartLocation="+leg.startLocation+" order number="+route.waypoint_order[legNum]);
+                    mMap.addMarker(markerOptions);
                 }
-                legNum++;
-                int stepnumber = 0;
                 for(Step step : leg.steps)
                 {
                     try {
-//                        decodedPolylines = step.polyline; // errr,   an encodedPolylines can't be combined by multiple single polyline
-                      //  Log.d(Tag, "polyline = " + step.polyline);
 
-                        ArrayList<LatLng> stepPoints = (ArrayList<LatLng>) decodePolyLine(step.polyline);
-                        line.addAll(stepPoints);
-                        Log.d(Tag," stepnumber="+stepnumber+"Color.BLACK+stepnumber*0xFF="+Color.BLACK+stepnumber*0xFF);
-                        mMap.addPolyline(new PolylineOptions()
-                                .addAll(stepPoints)
-                                .color(0xFF000000+stepnumber*0xFF));
-                        stepnumber++;
-                       // Thread.sleep(2000);
+                        if(legNum == 0)
+                         line0.addAll(decodePolyLine(step.polyline));
+                        if(legNum == 1)
+                            line1.addAll(decodePolyLine(step.polyline));
+                        if(legNum == 2)
+                            line2.addAll(decodePolyLine(step.polyline));
+                        if(legNum == 3)
+                            line3.addAll(decodePolyLine(step.polyline));
+                        if(legNum == 4)
+                            line4.addAll(decodePolyLine(step.polyline));
+                        line.addAll(decodePolyLine(step.polyline));
+
                     }catch ( StringIndexOutOfBoundsException e){
                         e.printStackTrace();
-                    } /*catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }*/
+                    }
                 }
+                legNum++;
             }
         }
         Log.d(Tag,"distanceLeg"+distanceLeg);
-//            mMap.addPolyline(new PolylineOptions()
+        Log.d(Tag,"line0="+line0.toString());
+        Log.d(Tag,"line1="+line1.toString());
+        Log.d(Tag,"line2="+line2.toString());
+        Log.d(Tag,"line3="+line3.toString());
+        Log.d(Tag,"line4="+line4.toString());
+//        mMap.addPolyline(new PolylineOptions()
 //                    .addAll(line)
-//                    .color(Color.BLUE));
-            moveCameraCenter(line);
+//                    .color( 0xFF000000+100*0xFF));
+
+        moveCameraCenter(line);
+            mMap.addPolyline(new PolylineOptions()
+                    .addAll(line0)
+                    .color(Color.BLUE));
+            Log.d(Tag,"Blue");
+//            try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+        mMap.addPolyline(new PolylineOptions()
+                .addAll(line1)
+                .color(Color.YELLOW));
+        Log.d(Tag,"YELLOW");
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+        mMap.addPolyline(new PolylineOptions()
+                .addAll(line2)
+                .color(Color.GREEN));
+        Log.d(Tag,"GREEN");
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+        mMap.addPolyline(new PolylineOptions()
+                .addAll(line3)
+                .color(Color.GRAY));
+        Log.d(Tag,"GRAY");
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+        mMap.addPolyline(new PolylineOptions()
+                .addAll(line4)
+                .color(0xFF555555));
+        Log.d(Tag,"0xFF555555");
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
 
 
     }

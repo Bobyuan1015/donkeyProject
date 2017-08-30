@@ -29,7 +29,9 @@ public class RequestUrlBuilder {
         if( wayPoints != null)
         {
             for ( LatLng waypoint : wayPoints)
-                urlwaypPoints += "|"+Double.toString(waypoint.latitude) +","+ Double.toString(waypoint.longitude) ;
+            {    urlwaypPoints += "|"+Double.toString(waypoint.latitude) +","+ Double.toString(waypoint.longitude) ;
+                Log.d(Tag,"urlCreator waypoint="+waypoint);
+            }
             Log.d(Tag,"no utf-8 waypPoints= "+urlwaypPoints);
             urlwaypPoints = encodeToUtf8(urlwaypPoints);
             Log.d(Tag," utf-8 waypPoints= "+ urlwaypPoints);

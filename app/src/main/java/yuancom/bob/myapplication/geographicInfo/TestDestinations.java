@@ -32,7 +32,7 @@ public class TestDestinations {
 
             destinationOperations.add(new Destination("Lanchester Library", 52.405764, -1.500293));
             destinationOperations.add(new Destination("Coventry", 52.401044, -1.513843));
-            destinationOperations.add(new Destination("Brandon Coventry", 52.384383, -1.401187));
+//            destinationOperations.add(new Destination("Brandon Coventry", 52.384383, -1.401187));
 //            destinationOperations.add(new Destination("Asda Coventry CV2 2QZ", 52.431356, -1.432177));
 //            destinationOperations.add(new Destination("Exhall", 52.466736, -1.482156));
 //            destinationOperations.add(new Destination("Astley Nuneaton", 52.501116, -1.541511));
