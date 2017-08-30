@@ -177,23 +177,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void moveCameraCenter( List<LatLng> latLngs) {
-//        Log.d(Tag, "moveCameraCenter: ");
-//        LatLngBounds.Builder boundsBuilder = LatLngBounds.builder();
-//
-//        TestDestinations.getInstance().getDestinationsInfo();
-//
-//        ArrayList<LatLng> destinationLatLngs = TestDestinations.getInstance().getLatLngInfo();
-//
-//        Iterator<LatLng> iterLatLng = destinationLatLngs.iterator();
-//
-//        while (iterLatLng.hasNext()) {
-//            LatLng address = iterLatLng.next();
-//            boundsBuilder.include(address);
-//            // Log.d(Tag,address.toString());
-//        }
-//
-//        // Move camera to show all markers and locations
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50));
 
         Log.d(Tag, "moveCameraCenter ");
         LatLngBounds.Builder boundsBuilder = LatLngBounds.builder();
@@ -231,24 +214,13 @@ public class MainActivity extends AppCompatActivity
     public void setPath() throws UnsupportedEncodingException{
         Log.d(Tag, "setPath");
 
-
         TestDestinations.getInstance().getDestinationsInfo();
         ArrayList<LatLng> testlatLngs = TestDestinations.getInstance().getLatLngInfo();
-
 
         RequestUrlBuilder requestUrlBuilder = new RequestUrlBuilder();
         BackEndSession backEndSession = new BackEndSession(this);
         backEndSession.execute(requestUrlBuilder.urlCreator(new LatLng(52.410101, -1.508444),new LatLng(52.410101, -1.508444),testlatLngs));
 
-//        for( int i=0; i<testlatLngs.size();i++)
-//        {
-//            Log.d(Tag,"testlatLngs.get(i)="+testlatLngs.get(i));
-//            MarkerOptions markerOptions = new MarkerOptions()
-//                .position(testlatLngs.get(i))
-//                .draggable(true)
-//                .icon(BitmapDescriptorFactory.fromBitmap( makeBitmap(this, String.valueOf(i+1))));
-//        mMap.addMarker(markerOptions);
-//        }
     }
 
     @Override
@@ -330,13 +302,13 @@ public class MainActivity extends AppCompatActivity
 
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.BLUE); // Text color
-        paint.setTextSize(14 * scale); // Text size
+        paint.setColor(0xFF5DBCD2); // Text color
+        paint.setTextSize(10 * scale); // Text size
         paint.setShadowLayer(1f, 0f, 1f, Color.WHITE); // Text shadow
         Rect bounds = new Rect();
         paint.getTextBounds(text, 0, text.length(), bounds);
 
-        int x = bitmap.getWidth() - bounds.width() - 38;
+        int x = bitmap.getWidth() - bounds.width() - 34;
         int y = bounds.height()+20;
         canvas.drawText(text, x, y, paint);
 
@@ -353,122 +325,53 @@ public class MainActivity extends AppCompatActivity
 //        Log.d(Tag,"dec="+ Arrays.toString(decod.toArray()));
 //        String decodedPolylines = "";
 //        PolylineOptions polylineOptions = new PolylineOptions();
-        List<LatLng> line = new ArrayList<LatLng>();
-        List<LatLng> line0 = new ArrayList<LatLng>();
-        List<LatLng> line1 = new ArrayList<LatLng>();
-        List<LatLng> line2 = new ArrayList<LatLng>();
-        List<LatLng> line3 = new ArrayList<LatLng>();
-        List<LatLng> line4 = new ArrayList<LatLng>();
-        List<LatLng> line5 = new ArrayList<LatLng>();
+        List<LatLng> completeLine = new ArrayList<LatLng>();
+
+
 
         int distanceLeg = 0;
         int legNum = 0;
+
         for ( Route route : responseElements.routs)
         {
             for( Leg leg : route.legs ){
                 distanceLeg = leg.distance.value;
+                List<LatLng> seperateLine = new ArrayList<LatLng>();
+
                 Log.d(Tag,"new marker legNum="+legNum+ " route.legs.length="+route.legs.length);
-//                    mMap.addMarker(new MarkerOptions()
-//                            .position(leg.startLocation)
-//                            .snippet(Integer.toString(distanceLeg)+"m")
-//                            .icon(BitmapDescriptorFactory.
-//                                    fromBitmap( new IconGenerator(this).
-//                                                    makeIcon(Integer.toString(route.waypoint_order[legNum -1 ]+1))  )));
+                    mMap.addMarker(new MarkerOptions()
+                            .position(leg.endLocation)
+                            .icon(BitmapDescriptorFactory.
+                                    fromBitmap( new IconGenerator(this).
+                                                    makeIcon(Integer.toString(distanceLeg/1000)+"."+Double.toString(distanceLeg%1000)+"km"))));
+
+
                 if(legNum < route.legs.length -1 ) {
+                    //label the travel destination in order, 1 , 2 ,3, 4 ,5 ...
                     MarkerOptions markerOptions = new MarkerOptions()
-                            .position(leg.startLocation)
+                            .position(leg.endLocation)
                             .draggable(true)
-                            .icon(BitmapDescriptorFactory.fromBitmap( makeBitmap(this, String.valueOf(route.waypoint_order[legNum]+1 ))));
-                    Log.d(Tag,"endLocation="+leg.endLocation+"   StartLocation="+leg.startLocation+" order number="+route.waypoint_order[legNum]);
+                            .icon(BitmapDescriptorFactory.fromBitmap( makeBitmap(this, String.valueOf(legNum +1 ))));
                     mMap.addMarker(markerOptions);
                 }
+
                 for(Step step : leg.steps)
                 {
-                    try {
-
-                        if(legNum == 0)
-                         line0.addAll(decodePolyLine(step.polyline));
-                        if(legNum == 1)
-                            line1.addAll(decodePolyLine(step.polyline));
-                        if(legNum == 2)
-                            line2.addAll(decodePolyLine(step.polyline));
-                        if(legNum == 3)
-                            line3.addAll(decodePolyLine(step.polyline));
-                        if(legNum == 4)
-                            line4.addAll(decodePolyLine(step.polyline));
-                        line.addAll(decodePolyLine(step.polyline));
-
-                    }catch ( StringIndexOutOfBoundsException e){
-                        e.printStackTrace();
-                    }
+                    seperateLine.addAll(decodePolyLine(step.polyline));
+                    completeLine.addAll(decodePolyLine(step.polyline));
                 }
+                Log.d(Tag,"color=0x"+Integer.toHexString(0x550000FF +legNum *0x00007611));
+
+                mMap.addPolyline(new PolylineOptions()
+                                 .addAll(seperateLine)
+                                 .color(0x550000FF +legNum *0x00007611));
+
                 legNum++;
             }
         }
-        Log.d(Tag,"distanceLeg"+distanceLeg);
-        Log.d(Tag,"line0="+line0.toString());
-        Log.d(Tag,"line1="+line1.toString());
-        Log.d(Tag,"line2="+line2.toString());
-        Log.d(Tag,"line3="+line3.toString());
-        Log.d(Tag,"line4="+line4.toString());
-//        mMap.addPolyline(new PolylineOptions()
-//                    .addAll(line)
-//                    .color( 0xFF000000+100*0xFF));
-
-        moveCameraCenter(line);
-            mMap.addPolyline(new PolylineOptions()
-                    .addAll(line0)
-                    .color(Color.BLUE));
-            Log.d(Tag,"Blue");
-//            try {
-//            Thread.sleep(3000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-        mMap.addPolyline(new PolylineOptions()
-                .addAll(line1)
-                .color(Color.YELLOW));
-        Log.d(Tag,"YELLOW");
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-        mMap.addPolyline(new PolylineOptions()
-                .addAll(line2)
-                .color(Color.GREEN));
-        Log.d(Tag,"GREEN");
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-        mMap.addPolyline(new PolylineOptions()
-                .addAll(line3)
-                .color(Color.GRAY));
-        Log.d(Tag,"GRAY");
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-        mMap.addPolyline(new PolylineOptions()
-                .addAll(line4)
-                .color(0xFF555555));
-        Log.d(Tag,"0xFF555555");
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-
-
+        moveCameraCenter(completeLine);
     }
+
     private List<LatLng> decodePolyLine(final String poly) {
         int len = poly.length();
         int index = 0;
