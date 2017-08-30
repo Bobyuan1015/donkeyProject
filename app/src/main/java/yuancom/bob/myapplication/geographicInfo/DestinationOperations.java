@@ -1,5 +1,7 @@
 package yuancom.bob.myapplication.geographicInfo;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import java.util.Iterator;
 public class DestinationOperations {
     private static ArrayList<Destination> mArrayDestinationList;
     private static ArrayList<LatLng> mArrayLatLngList;
-
+    final String Tag = "DestinationOperations";
     /**
      Private Constructor, it means users cannot allow to new this object except for getInstance()
      */
@@ -89,6 +91,39 @@ public class DestinationOperations {
 
             if (interatorOfDestination.equals(destination ))
             {
+                iterLatLng.remove();
+                iter.remove();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean remove(int index) throws NullPointerException
+    {
+
+        Log.d(Tag,"remove index="+index);
+        if ( index < 0 || index >= mArrayDestinationList.size() )
+        {
+            return false;
+        }
+        if(mArrayDestinationList == null )
+        {
+            throw new NullPointerException("The Destinationlist is empty, data invalid");
+        }
+
+        Iterator<Destination> iter = mArrayDestinationList.iterator();
+        Iterator<LatLng> iterLatLng = mArrayLatLngList.iterator();
+
+        while (iter.hasNext() & iterLatLng.hasNext()) {
+            Destination interatorOfDestination = iter.next();
+            iterLatLng.next();
+            Log.d(Tag,"mArrayDestinationList.get(index)="+mArrayDestinationList.get(index));
+            Log.d(Tag,"interatorOfDestination="+interatorOfDestination);
+            if (interatorOfDestination.equals(mArrayDestinationList.get(index) ))
+            {
+                Log.d(Tag,"Removement's done");
                 iterLatLng.remove();
                 iter.remove();
                 return true;

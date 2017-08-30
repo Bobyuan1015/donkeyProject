@@ -67,5 +67,10 @@ public class TestDestinations {
             destinationOperations.remove(desination);
 
     }
+    public void removeDestination( int index  )
+    {
+            destinationOperations.remove(index);
+
+    }
 
 }

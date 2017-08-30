@@ -1,12 +1,16 @@
 package yuancom.bob.myapplication.geographicInfo;
 
 import android.content.Context;
+
 import android.net.Uri;
+
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -25,12 +29,16 @@ public class DestinationsFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    final String Tag = "DestFragment";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private ListView destinationsListView ;
+
+    private ArrayAdapter<Destination> destinationsListAdapter;
 
     public DestinationsFragment() {
         // Required empty public constructor
@@ -68,12 +76,26 @@ public class DestinationsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_destinations, container, false);
-        ListView destinationsListView = (ListView) view.findViewById(R.id.destinationsList);
+         destinationsListView = (ListView) view.findViewById(R.id.destinationsList);
 
-        ArrayAdapter<Destination> destinationsListAdapter = new ArrayAdapter<Destination>(getActivity(),
+         destinationsListAdapter = new ArrayAdapter<Destination>(getActivity(),
                 android.R.layout.simple_list_item_1,TestDestinations.getInstance().getDestinationsInfo());
 
         destinationsListView.setAdapter(destinationsListAdapter);
+
+        destinationsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(Tag,"onItemLongClick( position="+position+" id="+id+" )");
+;
+
+                TestDestinations.getInstance().removeDestination(position);
+                destinationsListAdapter.notifyDataSetChanged();
+
+                return false;
+            }
+        });
+
         return view;
     }
 
