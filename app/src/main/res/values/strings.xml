@@ -8,7 +8,7 @@
     <string name="title_activity_maps">Map</string>
 
     <!-- TODO: Remove or change this Destinationholder text -->
-    <string name="Destinationlist">Your destinations are shown below:</string>
+    <string name="Destinationlist">Destinations</string>
     <string name="addDestination">Please input your travel schedule:</string>
 
     <!-- TODO: Remove or change this placeholder text -->

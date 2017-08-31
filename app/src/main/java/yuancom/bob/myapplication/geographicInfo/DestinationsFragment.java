@@ -6,15 +6,22 @@ import android.net.Uri;
 
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+
+import android.widget.Button;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+
 import yuancom.bob.myapplication.R;
+
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,7 +31,7 @@ import yuancom.bob.myapplication.R;
  * Use the {@link DestinationsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DestinationsFragment extends Fragment {
+public class DestinationsFragment extends Fragment implements OnItemListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -34,11 +41,15 @@ public class DestinationsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
     private OnFragmentInteractionListener mListener;
     private ListView destinationsListView ;
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter recyclerViewAdapter;
+    private RecyclerView.LayoutManager recyclerViewLayManager;
+    private Button  delete;
+    private ArrayList<Destination> destinationsDelete;
 
-    private ArrayAdapter<Destination> destinationsListAdapter;
+
 
     public DestinationsFragment() {
         // Required empty public constructor
@@ -76,25 +87,53 @@ public class DestinationsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_destinations, container, false);
-         destinationsListView = (ListView) view.findViewById(R.id.destinationsList);
+        destinationsDelete = new ArrayList<Destination>();
 
-         destinationsListAdapter = new ArrayAdapter<Destination>(getActivity(),
-                android.R.layout.simple_list_item_1,TestDestinations.getInstance().getDestinationsInfo());
-
-        destinationsListView.setAdapter(destinationsListAdapter);
-
-        destinationsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        delete = (Button) view.findViewById(R.id.delete);
+        delete.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(Tag,"onItemLongClick( position="+position+" id="+id+" )");
-;
+            public void onClick(View v) {
+                if( destinationsDelete.size()> 0 ){
 
-                TestDestinations.getInstance().removeDestination(position);
-                destinationsListAdapter.notifyDataSetChanged();
-
-                return false;
+                    for( Destination destination: destinationsDelete)
+                    {
+                        TestDestinations.getInstance().removeDestination(destination);
+                    }
+                    recyclerViewAdapter.notifyDataSetChanged();
+                    Log.d(Tag,"Delete sucessfully");
+                }
             }
         });
+        recyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
+        recyclerViewLayManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(recyclerViewLayManager);
+
+
+        recyclerViewAdapter = new MyAdapter( TestDestinations.getInstance().getDestinationsInfo(), this );
+
+        recyclerView.setAdapter(recyclerViewAdapter);
+
+
+
+//         destinationsListView = (ListView) view.findViewById(R.id.destinationsList);
+//
+//         destinationsListAdapter = new ArrayAdapter<Destination>(getActivity(),
+//                android.R.layout.simple_list_item_1,TestDestinations.getInstance().getDestinationsInfo());
+//
+//        destinationsListView.setAdapter(destinationsListAdapter);
+//
+//        destinationsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+//                Log.d(Tag,"onItemLongClick( position="+position+" id="+id+" )");
+//;
+//
+//                TestDestinations.getInstance().removeDestination(position);
+//                destinationsListAdapter.notifyDataSetChanged();
+//
+//                return false;
+//            }
+//        });
 
         return view;
     }
@@ -121,6 +160,12 @@ public class DestinationsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onItemSelected(Destination item, int position) {
+        destinationsDelete.add(item);
+        Log.d(Tag,"onItemSelected ("+item+",index="+position+")");
     }
 
     /**

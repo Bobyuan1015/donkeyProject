@@ -9,14 +9,26 @@ package yuancom.bob.myapplication.geographicInfo;
 public class Destination {
 
     private String mDestinationName;
+    private String mPostCode;
     private double mLongitude;
     private double mLatitude;
 
 
-    public Destination(String name, double longitude, double latitude){
+    public Destination(String name, double longitude, double latitude, String postCode ){
         this.mDestinationName = name;
         this.mLongitude = longitude;
         this.mLatitude = latitude;
+        this.mPostCode = postCode;
+    }
+    public Destination(String name, double longitude, double latitude ){
+        this.mDestinationName = name;
+        this.mLongitude = longitude;
+        this.mLatitude = latitude;
+        this.mPostCode = "";
+    }
+    public String getPostCode()
+    {
+        return mPostCode;
     }
     public String getName()
     {
