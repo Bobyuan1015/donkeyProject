@@ -1,6 +1,7 @@
 package yuancom.bob.myapplication.geographicInfo;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> implements OnI
 
     private ArrayList<Destination> mDataset;
     private OnItemListener mListener;
+    private int bindnumber = 0;
     public MyAdapter(ArrayList<Destination> mydata, OnItemListener listener){
         this.mDataset = mydata;
         this.mListener = listener;
@@ -35,10 +37,17 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> implements OnI
         Destination destination = mDataset.get(position);
         holder.mView_address.setText( destination.getName());
         holder.mView_Postcode.setText( destination.getPostCode());
-        holder.mView_Latlng.setText( "( "+destination.geLatitude()+ " , "+destination.getLongitude()+" )");
-
+        holder.mView_Latlng.setText( "( "+destination.getLongitude()+ " , "+destination.geLatitude()+" )");
+        holder.choiceImage.setImageResource(R.drawable.blankbox);
         holder.destination = destination;
+        bindnumber++;
+        Log.d("MyAdapter","bindnumber= "+bindnumber +" ");
     }
+
+    public void remove(int index){
+        mDataset.remove(index);
+    }
+
 
     @Override
     public int getItemCount() {

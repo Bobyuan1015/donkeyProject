@@ -29,7 +29,6 @@ public class TestDestinations {
 
             destinationOperations.add(new Destination("McDonald's  Arlington Business Park, Tile Hill Ln, Coventry ", 52.402868, -1.557833,"CV4 9BJ"));
             destinationOperations.add(new Destination("Asda Coventry Daventry Road Supermarket Daventry Road, Cheylesmore ", 52.393846, -1.503981,"CV3 5HN"));
-
             destinationOperations.add(new Destination("Lanchester Library", 52.405764, -1.500293));
             destinationOperations.add(new Destination("Coventry", 52.401044, -1.513843));
             destinationOperations.add(new Destination("Brandon Coventry", 52.384383, -1.401187));

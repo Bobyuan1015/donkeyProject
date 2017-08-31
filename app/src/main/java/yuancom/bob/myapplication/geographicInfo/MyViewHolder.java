@@ -36,19 +36,20 @@ public  class MyViewHolder extends RecyclerView.ViewHolder {
 
             @Override
             public void onClick(View v) {
-
+                position = getPosition();
+                Log.d("holder","Position="+position +"  selectedFlag="+selectedFlag);
                 if( selectedFlag!= 1)
                 {
                     selectedFlag = 1;
                     //rowLayout.setBackgroundColor(0x330000ff);
                     choiceImage.setImageResource(R.drawable.checkedbox);
-                    position = getPosition();
                     mListener.onItemSelected( destination,position );
-                    Log.d("holder","Position="+position);
+                    Log.d("holder","Position="+position +"  image checked=");
                 }
                 else{
                     selectedFlag = 0;
                     choiceImage.setImageResource(R.drawable.blankbox);
+                    Log.d("holder","Position="+position +"  image non checked=");
                 }
 
             }

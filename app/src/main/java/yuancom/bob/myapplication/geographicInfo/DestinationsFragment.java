@@ -9,8 +9,10 @@ import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -46,8 +48,9 @@ public class DestinationsFragment extends Fragment implements OnItemListener{
     private RecyclerView recyclerView;
     private RecyclerView.Adapter recyclerViewAdapter;
     private RecyclerView.LayoutManager recyclerViewLayManager;
-    private Button  delete;
+    private Button  delete, deleteAll;
     private ArrayList<Destination> destinationsDelete;
+    private ArrayList<Integer> itemsIndexsDelete;
 
 
 
@@ -88,21 +91,44 @@ public class DestinationsFragment extends Fragment implements OnItemListener{
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_destinations, container, false);
         destinationsDelete = new ArrayList<Destination>();
-
+        itemsIndexsDelete = new ArrayList<Integer>();
         delete = (Button) view.findViewById(R.id.delete);
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if( destinationsDelete.size()> 0 ){
-
-                    for( Destination destination: destinationsDelete)
+                    Log.d(Tag," destinationsDelete.size()="+destinationsDelete.size());
+                    int len = destinationsDelete.size();
+                    for( int i = len -1 ; i > -1; i--)
                     {
-                        TestDestinations.getInstance().removeDestination(destination);
+                        Log.d(Tag,"notify position=" +itemsIndexsDelete.get(i));
+                        TestDestinations.getInstance().removeDestination(destinationsDelete.get(i));
                     }
+                    destinationsDelete = new ArrayList<Destination>();
+                    itemsIndexsDelete = new ArrayList<Integer>();
                     recyclerViewAdapter.notifyDataSetChanged();
                     Log.d(Tag,"Delete sucessfully");
                     
                 }
+            }
+        });
+
+        deleteAll = (Button) view.findViewById(R.id.deleteAll);
+        deleteAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(Tag,"TestDestinations.getInstance().getDestinationsInfo().size="+TestDestinations.getInstance().getDestinationsInfo().size());
+                int len =TestDestinations.getInstance().getDestinationsInfo().size();
+                    for( int i= len -1; i> -1;i--)
+                    {
+                        Log.d(Tag,"remove i="+i);
+                        TestDestinations.getInstance().removeDestination(TestDestinations.getInstance().getDestinationsInfo().get(i));
+                    }
+                    destinationsDelete = new ArrayList<Destination>();
+                    itemsIndexsDelete = new ArrayList<Integer>();
+                    recyclerViewAdapter.notifyDataSetChanged();
+                    Log.d(Tag,"DeleteAll sucessfully");
+
             }
         });
         recyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
@@ -111,7 +137,6 @@ public class DestinationsFragment extends Fragment implements OnItemListener{
 
 
         recyclerViewAdapter = new MyAdapter( TestDestinations.getInstance().getDestinationsInfo(), this );
-
         recyclerView.setAdapter(recyclerViewAdapter);
 
 
@@ -166,6 +191,7 @@ public class DestinationsFragment extends Fragment implements OnItemListener{
     @Override
     public void onItemSelected(Destination item, int position) {
         destinationsDelete.add(item);
+        itemsIndexsDelete.add(position);
         Log.d(Tag,"onItemSelected ("+item+",index="+position+")");
     }
 
