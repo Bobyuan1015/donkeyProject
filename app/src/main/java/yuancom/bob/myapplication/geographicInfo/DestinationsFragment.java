@@ -101,6 +101,7 @@ public class DestinationsFragment extends Fragment implements OnItemListener{
                     }
                     recyclerViewAdapter.notifyDataSetChanged();
                     Log.d(Tag,"Delete sucessfully");
+                    
                 }
             }
         });
