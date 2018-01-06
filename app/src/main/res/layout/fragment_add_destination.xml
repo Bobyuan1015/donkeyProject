@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:textAllCaps="false"
-    tools:context="yuancom.bob.myapplication.geographicInfo.AddDestinationFragment">
+    tools:context=".View.geographicInfo.AddDestinationFragment">
 
 
     <TextView

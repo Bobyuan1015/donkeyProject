@@ -1,4 +1,4 @@
-package yuancom.bob.myapplication.geographicInfo;
+package yuancom.bob.myapplication.View.geographicInfo;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -27,6 +27,14 @@ public class TestDestinations {
         if( initialFlag == -1) {
            // destinationOperations.add(new Destination("Pool Meadow Bus Station Fairfax St, Coventry CV1 5SA", 52.410101, -1.508444));
 
+//
+            initialFlag = 1;
+        }
+        return destinationOperations.getmArrayDestinationList();
+    }
+    public ArrayList<LatLng> getLatLngInfo(){
+
+
             destinationOperations.add(new Destination("McDonald's  Arlington Business Park, Tile Hill Ln, Coventry ", 52.402868, -1.557833,"CV4 9BJ"));
             destinationOperations.add(new Destination("Asda Coventry Daventry Road Supermarket Daventry Road, Cheylesmore ", 52.393846, -1.503981,"CV3 5HN"));
             destinationOperations.add(new Destination("Lanchester Library", 52.405764, -1.500293));
@@ -44,12 +52,6 @@ public class TestDestinations {
             destinationOperations.add(new Destination("Coventry", 52.425741, -1.571099));
             destinationOperations.add(new Destination("Keresley", 52.449947, -1.531392));
             destinationOperations.add(new Destination("Wolston", 52.373191, -1.408356));
-            initialFlag = 1;
-        }
-        return destinationOperations.getmArrayDestinationList();
-    }
-    public ArrayList<LatLng> getLatLngInfo(){
-
         return destinationOperations.getmArrayLatLngList();
     }
 

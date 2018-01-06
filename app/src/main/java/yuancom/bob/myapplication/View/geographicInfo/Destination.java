@@ -1,4 +1,4 @@
-package yuancom.bob.myapplication.geographicInfo;
+package yuancom.bob.myapplication.View.geographicInfo;
 
 
 

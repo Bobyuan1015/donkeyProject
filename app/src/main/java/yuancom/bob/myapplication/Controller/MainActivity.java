@@ -1,4 +1,4 @@
-package yuancom.bob.myapplication;
+package yuancom.bob.myapplication.Controller;
 
 import android.Manifest;
 
@@ -13,7 +13,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.support.design.widget.NavigationView;
@@ -38,11 +37,8 @@ import com.google.maps.android.ui.IconGenerator;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 
 import yuancom.bob.myapplication.Modules.BackEndSession;
@@ -52,11 +48,11 @@ import yuancom.bob.myapplication.Modules.RequestUrlBuilder;
 import yuancom.bob.myapplication.Modules.ResponseElements;
 import yuancom.bob.myapplication.Modules.Route;
 import yuancom.bob.myapplication.Modules.Step;
-import yuancom.bob.myapplication.geographicInfo.AddDestinationFragment;
+import yuancom.bob.myapplication.R;
+import yuancom.bob.myapplication.View.geographicInfo.AddDestinationFragment;
 
-import yuancom.bob.myapplication.geographicInfo.Destination;
-import yuancom.bob.myapplication.geographicInfo.DestinationsFragment;
-import yuancom.bob.myapplication.geographicInfo.TestDestinations;
+import yuancom.bob.myapplication.View.geographicInfo.DestinationsFragment;
+import yuancom.bob.myapplication.View.geographicInfo.TestDestinations;
 
 import static android.graphics.Bitmap.Config.ARGB_8888;
 
